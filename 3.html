@@ -72,9 +72,9 @@
             fn = function () {
                 var width = docEle.clientWidth;
                 if (width > 750) {
-                    docEle.style.fontSize = "100px";
+                    docEle.style.fontSize = "70px";
                 } else {
-                    width && (docEle.style.fontSize = 100 * (width / 750) + "px");
+                    width && (docEle.style.fontSize = 70 * (width / 750) + "px");
                 }
             };
         win.addEventListener(event, fn, false);
