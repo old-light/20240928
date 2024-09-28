@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="gbk">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报告防伪查询</title>
     <!-- 引入 Bootstrap 样式 -->
@@ -39,8 +39,10 @@
             color: blue;
             text-decoration: underline;
         }
-        iframe {
+        iframe, embed {
             border: none;
+            width: 100%;
+            height: 100vh;
         }
         .panel-heading {
             background-color: #f5f5f5;
@@ -69,16 +71,31 @@
             <div class="panel-group" id="accordion">
                 <!-- 这里的内容由 JavaScript 动态生成 -->
             </div>
-
-            <!-- 滚动按钮 -->
-            <a id="scrollUp" href="#top">返回顶部</a>
-            <br><br>
         </div>
     </form>
 
     <script>
+        // 检查是否为微信内核环境
+        function isWeChat() {
+            var ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf('micromessenger') !== -1;
+        }
+
         document.getElementById('detail-link').addEventListener('click', function() {
             var accordion = document.getElementById('accordion');
+            var pdfEmbed;
+
+            if (isWeChat()) {
+                // 使用微信内核 `tbs` 参数来处理 PDF 预览
+                pdfEmbed = `
+                    <embed src="6023357.pdf#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" width="100%" height="100%" tbs="1" />
+                `;
+            } else {
+                // 使用标准的 `<iframe>` 标签显示 PDF
+                pdfEmbed = `
+                    <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
+                `;
+            }
 
             // 动态生成折叠面板的 HTML 代码
             var newPanel = `
@@ -93,8 +110,8 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body" style="height: 100vh;">
-                            <!-- 使用 iframe 铺满容器预览 PDF 文件 -->
-                            <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
+                            <!-- 动态选择预览 PDF 文件的方式 -->
+                            ${pdfEmbed}
                         </div>
                     </div>
                 </div>
