@@ -42,10 +42,12 @@
         #pdf-embed {
             border: none;
             width: 100%;
-            height: calc(100vh - 150px); /* 自适应高度 */
+            height: 100%; /* 设置为 100% 高度以适应容器 */
         }
         .pdf-container {
             display: none; /* 默认隐藏PDF容器 */
+            height: calc(100vh - 200px); /* 高度自适应，减去上方和下方元素的空间 */
+            overflow: auto; /* 支持垂直滚动 */
             margin-top: 10px; /* 适当的顶部间距 */
         }
         #toggle-link {
@@ -88,24 +90,37 @@
     </div>
 
     <script>
-        // 点击 "ZFLJ6023357" 时显示折叠容器
+        // 显示折叠容器的函数
         document.getElementById('toggle-link').addEventListener('click', function() {
             var reportContainer = document.getElementById('report-container');
             reportContainer.style.display = 'block'; // 显示中间折叠容器
             $('#report-details').collapse('show'); // 展开“报告号”折叠面板
         });
 
-        // 点击折叠的 "报告号" 容器时，加载 PDF 文件
+        // 点击“报告号”时加载 PDF 的逻辑
         document.getElementById('report-title').addEventListener('click', function() {
             var pdfEmbed = document.getElementById('pdf-embed');
             var pdfContainer = document.getElementById('pdf-container');
 
-            // 如果 PDF 容器已经显示，则不再重复加载
+            // 只有当 PDF 容器未显示时，才进行加载
             if (pdfContainer.style.display === 'none') {
                 // 设置 iframe 的 src 属性为 PDF 文件路径（确保路径正确）
                 pdfEmbed.src = '6023357.pdf';
                 pdfContainer.style.display = 'block'; // 显示 PDF 容器
             }
+        });
+
+        // 当折叠面板展开时自动调整 PDF 容器的高度
+        $('#report-details').on('shown.bs.collapse', function() {
+            var pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.style.height = `calc(100vh - 200px)`; // 自适应高度设置
+        });
+
+        // 当折叠面板收起时，隐藏 PDF 容器
+        $('#report-details').on('hidden.bs.collapse', function() {
+            var pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.style.display = 'none'; // 隐藏 PDF 容器
+            document.getElementById('pdf-embed').src = ''; // 清除 src 以避免重复加载
         });
     </script>
 </body>
