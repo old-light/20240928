@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报告防伪查询</title>
     <!-- 引入 Bootstrap 样式 -->
@@ -43,7 +43,7 @@
             background-color: #f5f5f5;
             border-bottom: 1px solid #ddd;
         }
-        iframe, embed {
+        iframe {
             border: none;
             width: 100%;
             height: 100vh;
@@ -69,25 +69,12 @@
     </div>
 
     <script>
-        // 检查是否为微信内核环境
-        function isWeChat() {
-            var ua = navigator.userAgent.toLowerCase();
-            return ua.indexOf('micromessenger') !== -1;
-        }
-
-        // 检查微信 X5 内核是否可用
-        function isWeChatX5Enabled() {
-            var ua = navigator.userAgent.toLowerCase();
-            return ua.indexOf('tbs') !== -1;
-        }
-
         document.getElementById('detail-link').addEventListener('click', function() {
             var accordion = document.getElementById('accordion');
-            var pdfEmbed;
 
-            // 直接使用本地 PDF 路径
-            pdfEmbed = `
-                <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
+            // 使用腾讯 TBS 文件预览接口嵌入 PDF
+            var pdfEmbed = `
+                <iframe src="6023357.pdf" width="100%" height="100vh" frameborder="0" scrolling="no" allowfullscreen tbs="1"></iframe>
             `;
 
             // 动态生成折叠面板的 HTML 代码
@@ -103,7 +90,6 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body" style="height: 100vh;">
-                            <!-- 使用本地 PDF 文件路径 -->
                             ${pdfEmbed}
                         </div>
                     </div>
