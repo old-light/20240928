@@ -78,7 +78,7 @@
         <div id="loading">加载中...</div>
         <!-- 点击查看详细报告的链接 -->
         <div id="div_search_result">
-            点击查看详细报告 <span id="detail-link">ZFLJ6023356</span>
+            点击查看详细报告 <span id="detail-link">ZFLJ6023357</span>
         </div>
 
         <!-- 折叠面板容器（假容器） -->
@@ -89,7 +89,7 @@
                         <!-- 折叠箭头图标 -->
                         <a id="report-title" data-toggle="collapse" href="#report-details">
                             <span id="arrow-icon" class="glyphicon glyphicon-chevron-down arrow-icon"></span>
-                            报告号：ZFLJ6023356
+                            报告号：ZFLJ6023357
                         </a>
                     </h4>
                 </div>
@@ -106,6 +106,8 @@
     </div>
 
     <script>
+        let isRendered = false;  // 标志位：是否已经渲染过
+
         // 点击“查看详细报告”链接时，显示假容器
         document.getElementById('detail-link').addEventListener('click', function() {
             var reportContainer = document.getElementById('report-container');
@@ -113,11 +115,11 @@
             $('#report-details').collapse('hide'); // 默认关闭 PDF 折叠容器
         });
 
-        // 点击“报告号：ZFLJ6023356”时，展开并开始渲染 PDF，并动态改变箭头方向
+        // 点击“报告号：ZFLJ6023357”时，展开并开始渲染 PDF，并动态改变箭头方向
         document.getElementById('report-title').addEventListener('click', function() {
             var pdfContainer = document.getElementById('pdf-container');
             var arrowIcon = document.getElementById('arrow-icon');
-            var pdfURL = '6023356.pdf'; // 指定本地 PDF 文件路径
+            var pdfURL = '6023357.pdf'; // 指定本地 PDF 文件路径
 
             // 切换箭头方向
             if ($('#report-details').hasClass('in')) {
@@ -126,8 +128,8 @@
                 arrowIcon.className = 'glyphicon glyphicon-chevron-up arrow-icon';
             }
 
-            // 如果 PDF 容器已经渲染，则不再重复加载
-            if (pdfContainer.children.length > 0) {
+            // 如果已经渲染过，则直接返回
+            if (isRendered) {
                 return;
             }
 
@@ -142,6 +144,7 @@
 
                 // 使用递归方式按顺序渲染每一页
                 renderPage(pdf, pdfContainer, 1);
+                isRendered = true; // 标记 PDF 已经渲染
             }).catch(function(error) {
                 console.error('无法加载 PDF 文件: ', error);
                 document.getElementById('loading').innerHTML = '加载失败';
