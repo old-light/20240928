@@ -49,11 +49,12 @@
         }
         #pdf-container {
             width: 100%;
-            height: calc(100vh - 150px); /* 高度自适应，减去顶部的高度 */
+            height: calc(100vh - 200px); /* 高度自适应，减去顶部的高度 */
             overflow-y: auto; /* 支持垂直滚动 */
             background: #f5f5f5;
             padding: 10px;
             box-sizing: border-box;
+            display: none; /* 默认隐藏 PDF 区域 */
         }
         .pdf-page {
             display: block;
@@ -77,9 +78,21 @@
             点击查看详细报告 <span id="detail-link">ZFLJ6023357</span>
         </div>
 
-        <!-- 折叠面板容器 -->
-        <div class="panel-group" id="accordion">
-            <!-- 这里的内容由 JavaScript 动态生成 -->
+        <!-- 折叠面板容器（假容器） -->
+        <div id="report-container" class="panel-group" style="display: none;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a id="report-title" data-toggle="collapse" href="#report-details">报告号：ZFLJ6023357</a>
+                    </h4>
+                </div>
+                <div id="report-details" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <!-- 真正显示 PDF 的容器 -->
+                        <div id="pdf-container" class="pdf-container"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 滚动按钮 -->
@@ -87,13 +100,23 @@
         <br><br>
     </div>
 
-    <!-- PDF.js 渲染区域 -->
-    <div id="pdf-container" style="display: none;"></div>
-
     <script>
+        // 点击“查看详细报告”链接时，显示假容器
         document.getElementById('detail-link').addEventListener('click', function() {
+            var reportContainer = document.getElementById('report-container');
+            reportContainer.style.display = 'block'; // 显示中间折叠容器
+            $('#report-details').collapse('hide'); // 默认关闭 PDF 折叠容器
+        });
+
+        // 点击“报告号：ZFLJ6023357”时，展开并开始渲染 PDF
+        document.getElementById('report-title').addEventListener('click', function() {
             var pdfContainer = document.getElementById('pdf-container');
             var pdfURL = '6023357.pdf'; // 指定本地 PDF 文件路径
+
+            // 如果 PDF 容器已经渲染，则不再重复加载
+            if (pdfContainer.children.length > 0) {
+                return;
+            }
 
             // 显示加载状态
             document.getElementById('loading').style.display = 'block';
