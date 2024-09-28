@@ -51,29 +51,22 @@
     </style>
 </head>
 <body>
-    <!-- 表单结构保持一致 -->
-    <form method="post" action="./QueryReport.aspx?re_no=ZFLJ6023357&amp;va_no=4637366416" id="form1">
-        <div class="aspNetHidden">
-            <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwULLTExNTg2NDI3MDZkZA6N6owbKES/Vcrn+TbtQnaUipt8d2J34SdX0a9PsF8J">
-        </div>
-        <div class="aspNetHidden">
-            <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="D63B4D56">
+    <div class="container">
+        <div id="loading">加载中...</div>
+        <!-- 点击查看详细报告的链接 -->
+        <div id="div_search_result">
+            点击查看详细报告 <span id="detail-link">ZFLJ6023357</span>
         </div>
 
-        <div class="container">
-            <div id="loading">加载中...</div>
-            <!-- 点击查看详细报告的链接 -->
-            <div id="div_search_result">
-                点击查看详细报告 <span id="detail-link">ZFLJ6023357</span>
-            </div>
-
-            <!-- 折叠面板容器 -->
-            <div class="panel-group" id="accordion">
-                <!-- 这里的内容由 JavaScript 动态生成 -->
-            </div>
-
+        <!-- 折叠面板容器 -->
+        <div class="panel-group" id="accordion">
+            <!-- 这里的内容由 JavaScript 动态生成 -->
         </div>
-    </form>
+
+        <!-- 滚动按钮 -->
+        <a id="scrollUp" href="#top">返回顶部</a>
+        <br><br>
+    </div>
 
     <script>
         // 检查是否为微信内核环境
@@ -92,17 +85,10 @@
             var accordion = document.getElementById('accordion');
             var pdfEmbed;
 
-            if (isWeChatX5Enabled()) {
-                // 使用微信内核 TBS 预览方式
-                pdfEmbed = `
-                    <iframe src="6023357.pdf" width="100%" height="100vh" frameborder="0" scrolling="no" allowfullscreen></iframe>
-                `;
-            } else {
-                // 使用普通 iframe 或在线 PDF 链接
-                pdfEmbed = `
-                    <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
-                `;
-            }
+            // 直接使用本地 PDF 路径
+            pdfEmbed = `
+                <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
+            `;
 
             // 动态生成折叠面板的 HTML 代码
             var newPanel = `
@@ -117,7 +103,7 @@
                     </div>
                     <div id="collapseOne" class="panel-collapse collapse in">
                         <div class="panel-body" style="height: 100vh;">
-                            <!-- 动态选择预览 PDF 文件的方式 -->
+                            <!-- 使用本地 PDF 文件路径 -->
                             ${pdfEmbed}
                         </div>
                     </div>
