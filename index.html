@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-    <meta charset="gbk">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报告防伪查询</title>
     <!-- 引入 Bootstrap 样式 -->
@@ -39,14 +39,14 @@
             color: blue;
             text-decoration: underline;
         }
+        .panel-heading {
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
         iframe, embed {
             border: none;
             width: 100%;
             height: 100vh;
-        }
-        .panel-heading {
-            background-color: #f5f5f5;
-            border-bottom: 1px solid #ddd;
         }
     </style>
 </head>
@@ -71,6 +71,10 @@
             <div class="panel-group" id="accordion">
                 <!-- 这里的内容由 JavaScript 动态生成 -->
             </div>
+
+            <!-- 滚动按钮 -->
+            <a id="scrollUp" href="#top">返回顶部</a>
+            <br><br>
         </div>
     </form>
 
@@ -81,19 +85,25 @@
             return ua.indexOf('micromessenger') !== -1;
         }
 
+        // 检查微信 X5 内核是否可用
+        function isWeChatX5Enabled() {
+            var ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf('tbs') !== -1;
+        }
+
         document.getElementById('detail-link').addEventListener('click', function() {
             var accordion = document.getElementById('accordion');
             var pdfEmbed;
 
-            if (isWeChat()) {
-                // 使用微信内核 `tbs` 参数来处理 PDF 预览
+            if (isWeChatX5Enabled()) {
+                // 使用微信内核 TBS 预览方式
                 pdfEmbed = `
-                    <embed src="6023357.pdf#toolbar=0&navpanes=0&scrollbar=0" type="application/pdf" width="100%" height="100%" tbs="1" />
+                    <iframe src="https://file.3g.qq.com:8000/d/pdfjs/viewer.html?file=${location.origin}/6023357.pdf" width="100%" height="100vh" frameborder="0" scrolling="no" allowfullscreen></iframe>
                 `;
             } else {
-                // 使用标准的 `<iframe>` 标签显示 PDF
+                // 使用普通 iframe 或在线 PDF 链接
                 pdfEmbed = `
-                    <iframe src="6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
+                    <iframe src="https://drive.google.com/viewerng/viewer?embedded=true&url=${location.origin}/6023357.pdf" width="100%" height="100%" type="application/pdf"></iframe>
                 `;
             }
 
