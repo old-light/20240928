@@ -106,6 +106,8 @@
     </div>
 
     <script>
+        let isRendered = false;  // 标志位：是否已经渲染过
+
         // 点击“查看详细报告”链接时，显示假容器
         document.getElementById('detail-link').addEventListener('click', function() {
             var reportContainer = document.getElementById('report-container');
@@ -126,8 +128,8 @@
                 arrowIcon.className = 'glyphicon glyphicon-chevron-up arrow-icon';
             }
 
-            // 如果 PDF 容器已经渲染，则不再重复加载
-            if (pdfContainer.children.length > 0) {
+            // 如果已经渲染过，则直接返回
+            if (isRendered) {
                 return;
             }
 
@@ -142,6 +144,7 @@
 
                 // 使用递归方式按顺序渲染每一页
                 renderPage(pdf, pdfContainer, 1);
+                isRendered = true; // 标记 PDF 已经渲染
             }).catch(function(error) {
                 console.error('无法加载 PDF 文件: ', error);
                 document.getElementById('loading').innerHTML = '加载失败';
