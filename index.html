@@ -140,41 +140,51 @@
                 document.getElementById('loading').style.display = 'none'; // 隐藏加载状态
                 pdfContainer.style.display = 'block'; // 显示 PDF 渲染区域
 
-                // 按顺序渲染每一页
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    pdf.getPage(pageNum).then(function(page) {
-                        var viewport = page.getViewport({ scale: 1.5 }); // 调整页面缩放比例
-                        
-                        // 创建每一页的容器
-                        var pageDiv = document.createElement('div');
-                        pageDiv.className = 'pdf-page';
-                        
-                        // 创建 canvas 元素来渲染每一页
-                        var canvas = document.createElement('canvas');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
-                        
-                        var context = canvas.getContext('2d');
-
-                        var renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                        };
-
-                        // 渲染 PDF 页面
-                        page.render(renderContext).promise.then(function() {
-                            // 将 Canvas 添加到页容器中
-                            pageDiv.appendChild(canvas);
-                            // 将页容器添加到 PDF 容器中
-                            pdfContainer.appendChild(pageDiv);
-                        });
-                    });
-                }
+                // 使用递归方式按顺序渲染每一页
+                renderPage(pdf, pdfContainer, 1);
             }).catch(function(error) {
                 console.error('无法加载 PDF 文件: ', error);
                 document.getElementById('loading').innerHTML = '加载失败';
             });
         });
+
+        // 使用递归方式按顺序渲染每一页
+        async function renderPage(pdf, container, pageNumber) {
+            if (pageNumber > pdf.numPages) {
+                return;
+            }
+            
+            // 获取当前页
+            const page = await pdf.getPage(pageNumber);
+            var viewport = page.getViewport({ scale: 1.5 }); // 调整页面缩放比例
+            
+            // 创建每一页的容器
+            var pageDiv = document.createElement('div');
+            pageDiv.className = 'pdf-page';
+            
+            // 创建 canvas 元素来渲染每一页
+            var canvas = document.createElement('canvas');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            var context = canvas.getContext('2d');
+
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            // 渲染 PDF 页面
+            await page.render(renderContext).promise;
+
+            // 将 Canvas 添加到页容器中
+            pageDiv.appendChild(canvas);
+            // 将页容器添加到 PDF 容器中
+            container.appendChild(pageDiv);
+
+            // 渲染下一页
+            renderPage(pdf, container, pageNumber + 1);
+        }
 
         // 更新箭头图标方向
         $('#report-details').on('show.bs.collapse', function () {
