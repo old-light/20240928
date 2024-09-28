@@ -45,11 +45,17 @@
             background-color: #f5f5f5;
             border-bottom: 1px solid #ddd;
         }
-        #pdf-viewer {
+        #pdf-container {
             width: 100%;
             height: 100vh;
-            overflow: auto;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        .pdf-page {
+            display: block;
+            margin: 10px auto;
             border: 1px solid #ddd;
+            background: #fff;
         }
     </style>
 </head>
@@ -72,11 +78,11 @@
     </div>
 
     <!-- PDF.js 渲染区域 -->
-    <div id="pdf-viewer" style="display: none;"></div>
+    <div id="pdf-container" style="display: none;"></div>
 
     <script>
         document.getElementById('detail-link').addEventListener('click', function() {
-            var pdfViewer = document.getElementById('pdf-viewer');
+            var pdfContainer = document.getElementById('pdf-container');
             var pdfURL = '6023357.pdf'; // 指定本地 PDF 文件路径
 
             // 显示加载状态
@@ -86,26 +92,31 @@
             var loadingTask = pdfjsLib.getDocument(pdfURL);
             loadingTask.promise.then(function(pdf) {
                 document.getElementById('loading').style.display = 'none'; // 隐藏加载状态
-                pdfViewer.style.display = 'block'; // 显示 PDF 渲染区域
+                pdfContainer.style.display = 'block'; // 显示 PDF 渲染区域
 
-                // 获取第1页
-                pdf.getPage(1).then(function(page) {
-                    var viewport = page.getViewport({ scale: 1.5 });
-                    var canvas = document.createElement('canvas');
-                    var context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
+                // 按顺序渲染每一页
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdf.getPage(pageNum).then(function(page) {
+                        var viewport = page.getViewport({ scale: 1.5 });
+                        var canvas = document.createElement('canvas');
+                        canvas.className = 'pdf-page'; // 添加自定义样式类
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
 
-                    var renderContext = {
-                        canvasContext: context,
-                        viewport: viewport
-                    };
+                        var context = canvas.getContext('2d');
 
-                    // 渲染 PDF 页面
-                    page.render(renderContext).promise.then(function() {
-                        pdfViewer.appendChild(canvas);
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+
+                        // 渲染 PDF 页面
+                        page.render(renderContext).promise.then(function() {
+                            // 每页渲染完成后，将 Canvas 添加到 PDF 容器中
+                            pdfContainer.appendChild(canvas);
+                        });
                     });
-                });
+                }
             }).catch(function(error) {
                 console.error('无法加载 PDF 文件: ', error);
                 document.getElementById('loading').innerHTML = '加载失败';
