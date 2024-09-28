@@ -26,14 +26,20 @@
         .panel-body {
             padding: 3px;
         }
+        #pdf-viewer {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container" style="margin-top: 5px;">
         <div id="loading" style="display: none;">加载中...</div>
-        <div id="div_search_result">点击查看详细报告 <a href="6023357.pdf">ZFLJ6023357</a></div>
+        <div id="div_search_result">
+            点击查看详细报告 <a href="javascript:void(0);" onclick="viewReport('ZFLJ6023357')">ZFLJ6023357</a>
+        </div>
         <!-- 报告预览面板 -->
-        <div class="panel-group" id="accordion" style="display: none;">
+        <div id="pdf-viewer" style="display: none;">
+            <div id="accordion"></div>
         </div>
         <!-- 滚动按钮 -->
         <a id="scrollUp" href="#top"></a>
@@ -46,31 +52,27 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/scrollUp.js"></script>
     <script src="js/userAgent.js"></script>
-    
+
     <script>
         // 模拟查询报告结果并渲染页面
         $(function () {
             var reportNo = "ZFLJ6023357";
-            var html = '点击查看详细报告 <a href="' + reportNo + '.pdf">' + reportNo + '</a>';
+            var html = '点击查看详细报告 <a href="javascript:void(0);" onclick="viewReport(\'' + reportNo + '\')">' + reportNo + '</a>';
             $("#div_search_result").html(html);
         });
 
         // 定义报告号的数组
-        var reportArray = new Array();
+        var reportArray = [];
 
         function contains(array, str) {
-            for (var i = 0; i < array.length; i++) {
-                if (str == array[i]) {
-                    return true;
-                }
-            }
-            return false;
+            return array.includes(str);
         }
 
         // 展示报告内容
         function viewReport(reportNo) {
+            $("#pdf-viewer").show();
             var flag = false;
-            $("#accordion").show();
+
             if (!contains(reportArray, reportNo)) {
                 flag = true;
                 reportArray.push(reportNo);
@@ -85,12 +87,13 @@
                 html += '           </a>';
                 html += '       </h4>';
                 html += '   </div>';
-                html += '   <div id="collapse' + reportArray.length + '" class="panel-collapse collapse">';
+                html += '   <div id="collapse' + reportArray.length + '" class="panel-collapse collapse in">';
                 html += '       <div class="panel-body">';
                 html += '           <embed src="pdf/' + reportNo + '.pdf" type="application/pdf" width="100%" height="600px" />';
                 html += '       </div>';
                 html += '   </div>';
                 html += '</div>';
+
                 $("#accordion").append(html);
 
                 // 注册事件
@@ -101,6 +104,7 @@
                     $("#glyphicon_" + reportNo).attr("class", "glyphicon glyphicon-chevron-down");
                 });
             }
+
             if (!flag) {
                 d_collapse(reportNo);
             }
@@ -114,7 +118,9 @@
                     index = i + 1;
                 }
             }
+
             $('#collapse' + index.toString()).collapse('toggle');
+
             for (var i = 0; i < reportArray.length; i++) {
                 if (i + 1 == index) {
                     $('#collapse' + (i + 1).toString()).collapse('show');
