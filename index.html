@@ -72,9 +72,9 @@
         document.getElementById('detail-link').addEventListener('click', function() {
             var accordion = document.getElementById('accordion');
 
-            // 使用腾讯 TBS 文件预览接口嵌入 PDF
+            // 使用腾讯文档提供的预览链接
             var pdfEmbed = `
-                <iframe src="https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(location.href.replace('https://old-light.github.io/20240928/index.html', 'https://old-light.github.io/20240928/6023357.pdf'))}" width="100%" height="100vh" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                <iframe src="https://docs.qq.com/pdf/DUElWTXJZeFhYbVNz" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen></iframe>
             `;
 
             // 动态生成折叠面板的 HTML 代码
