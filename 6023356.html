@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报告防伪查询</title>
+    <!-- 引入 Bootstrap 样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+    <!-- 引入 PDF.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.1.81/build/pdf.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 5px;
+            width: 100%;
+        }
+        #accordion {
+            margin-top: 20px;
+            display: none; /* 默认隐藏折叠面板 */
+        }
+        .panel-body {
+            padding: 0;
+        }
+        .panel-title a {
+            display: block;
+            text-decoration: none;
+            color: #337ab7;
+            cursor: pointer;
+        }
+        #loading {
+            display: none;
+            color: red;
+        }
+        #detail-link {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        .panel-heading {
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        #pdf-container {
+            width: 100%;
+            height: calc(100vh - 200px); /* 高度自适应，减去顶部的高度 */
+            overflow-y: auto; /* 支持垂直滚动 */
+            background: #f5f5f5;
+            padding: 10px;
+            box-sizing: border-box;
+            display: none; /* 默认隐藏 PDF 区域 */
+        }
+        .pdf-page {
+            display: block;
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            background: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .pdf-page canvas {
+            display: block;
+            width: 100%; /* 页面自适应 */
+            height: auto;
+        }
+        .arrow-icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">加载中...</div>
+        <!-- 点击查看详细报告的链接 -->
+        <div id="div_search_result">
+            点击查看详细报告 <span id="detail-link">ZFLJ6023356</span>
+        </div>
+
+        <!-- 折叠面板容器（假容器） -->
+        <div id="report-container" class="panel-group" style="display: none;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <!-- 折叠箭头图标 -->
+                        <a id="report-title" data-toggle="collapse" href="#report-details">
+                            <span id="arrow-icon" class="glyphicon glyphicon-chevron-down arrow-icon"></span>
+                            报告号：ZFLJ6023356
+                        </a>
+                    </h4>
+                </div>
+                <div id="report-details" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <!-- 真正显示 PDF 的容器 -->
+                        <div id="pdf-container" class="pdf-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+    </div>
+
+    <script>
+        // 点击“查看详细报告”链接时，显示假容器
+        document.getElementById('detail-link').addEventListener('click', function() {
+            var reportContainer = document.getElementById('report-container');
+            reportContainer.style.display = 'block'; // 显示中间折叠容器
+            $('#report-details').collapse('hide'); // 默认关闭 PDF 折叠容器
+        });
+
+        // 点击“报告号：ZFLJ6023356”时，展开并开始渲染 PDF，并动态改变箭头方向
+        document.getElementById('report-title').addEventListener('click', function() {
+            var pdfContainer = document.getElementById('pdf-container');
+            var arrowIcon = document.getElementById('arrow-icon');
+            var pdfURL = '6023356.pdf'; // 指定本地 PDF 文件路径
+
+            // 切换箭头方向
+            if ($('#report-details').hasClass('in')) {
+                arrowIcon.className = 'glyphicon glyphicon-chevron-down arrow-icon';
+            } else {
+                arrowIcon.className = 'glyphicon glyphicon-chevron-up arrow-icon';
+            }
+
+            // 如果 PDF 容器已经渲染，则不再重复加载
+            if (pdfContainer.children.length > 0) {
+                return;
+            }
+
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'block';
+
+            // 加载并渲染 PDF 文件
+            var loadingTask = pdfjsLib.getDocument(pdfURL);
+            loadingTask.promise.then(function(pdf) {
+                document.getElementById('loading').style.display = 'none'; // 隐藏加载状态
+                pdfContainer.style.display = 'block'; // 显示 PDF 渲染区域
+
+                // 按顺序渲染每一页
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdf.getPage(pageNum).then(function(page) {
+                        var viewport = page.getViewport({ scale: 1.5 }); // 调整页面缩放比例
+                        
+                        // 创建每一页的容器
+                        var pageDiv = document.createElement('div');
+                        pageDiv.className = 'pdf-page';
+                        
+                        // 创建 canvas 元素来渲染每一页
+                        var canvas = document.createElement('canvas');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        
+                        var context = canvas.getContext('2d');
+
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+
+                        // 渲染 PDF 页面
+                        page.render(renderContext).promise.then(function() {
+                            // 将 Canvas 添加到页容器中
+                            pageDiv.appendChild(canvas);
+                            // 将页容器添加到 PDF 容器中
+                            pdfContainer.appendChild(pageDiv);
+                        });
+                    });
+                }
+            }).catch(function(error) {
+                console.error('无法加载 PDF 文件: ', error);
+                document.getElementById('loading').innerHTML = '加载失败';
+            });
+        });
+
+        // 更新箭头图标方向
+        $('#report-details').on('show.bs.collapse', function () {
+            document.getElementById('arrow-icon').className = 'glyphicon glyphicon-chevron-up arrow-icon';
+        });
+
+        $('#report-details').on('hide.bs.collapse', function () {
+            document.getElementById('arrow-icon').className = 'glyphicon glyphicon-chevron-down arrow-icon';
+        });
+    </script>
+</body>
+</html>
